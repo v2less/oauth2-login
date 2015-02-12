@@ -1,3 +1,4 @@
 <div>
-  Allows you to login to Jenkins with a Google account and restrict access to a Google Apps Domain.
+  <!-- Jesse thinks this is a bit pedantic -->
+  Allows you to log in to Jenkins with a Google account and restrict access to a Google Apps Domain.
 </div>
