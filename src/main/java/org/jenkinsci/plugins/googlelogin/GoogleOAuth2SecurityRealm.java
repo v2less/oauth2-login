@@ -28,6 +28,8 @@ import com.google.api.client.auth.oauth2.BearerToken;
 import com.google.api.client.auth.oauth2.ClientParametersAuthentication;
 import com.google.api.client.auth.oauth2.Credential;
 import com.google.api.client.auth.oauth2.TokenResponse;
+import com.google.api.client.auth.openidconnect.IdToken;
+import com.google.api.client.auth.openidconnect.IdTokenResponse;
 import com.google.api.client.http.GenericUrl;
 import com.google.api.client.http.HttpRequest;
 import com.google.api.client.http.HttpRequestFactory;
@@ -168,7 +170,12 @@ public class GoogleOAuth2SecurityRealm extends SecurityRealm {
             @Override
             public HttpResponse onSuccess(String authorizationCode) {
                 try {
-                    TokenResponse response = flow.newTokenRequest(authorizationCode).setRedirectUri(buildOAuthRedirectUrl()).execute();
+                    IdTokenResponse response = IdTokenResponse.execute(
+                            flow.newTokenRequest(authorizationCode).setRedirectUri(buildOAuthRedirectUrl()));
+                    IdToken idToken = IdToken.parse(JSON_FACTORY,response.getIdToken());
+                    if (domain != null && ! domain.equals(idToken.getPayload().get("hd"))) {
+                        return HttpResponses.errorWithoutStack(401, "Unauthorized");
+                    }
                     final Credential credential = flow.createAndStoreCredential(response, null);
 
                     HttpRequestFactory requestFactory =
