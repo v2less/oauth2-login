@@ -7,13 +7,14 @@
   </parent>
 
   <artifactId>google-login</artifactId>
-  <version>1.2-SNAPSHOT</version>
+  <version>1.2</version>
   <packaging>hpi</packaging>
 
   <scm>
     <connection>scm:git:ssh://github.com/jenkinsci/google-login-plugin.git</connection>
     <developerConnection>scm:git:ssh://git@github.com/jenkinsci/google-login-plugin.git</developerConnection>
     <url>https://github.com/jenkinsci/google-login-plugin</url>
+    <tag>google-login-1.2</tag>
   </scm>
 
   <name>Google Login Plugin</name>
