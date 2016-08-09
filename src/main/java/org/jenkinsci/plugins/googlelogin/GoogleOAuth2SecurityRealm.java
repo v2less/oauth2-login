@@ -64,6 +64,7 @@ import org.kohsuke.stapler.StaplerRequest;
 
 import java.io.IOException;
 import java.util.Arrays;
+import java.util.StringTokenizer;
 
 /**
  * Login with Google using OpenID Connect / OAuth 2
@@ -173,8 +174,15 @@ public class GoogleOAuth2SecurityRealm extends SecurityRealm {
                     IdTokenResponse response = IdTokenResponse.execute(
                             flow.newTokenRequest(authorizationCode).setRedirectUri(buildOAuthRedirectUrl()));
                     IdToken idToken = IdToken.parse(JSON_FACTORY,response.getIdToken());
-                    if (domain != null && ! domain.equals(idToken.getPayload().get("hd"))) {
-                        return HttpResponses.errorWithoutStack(401, "Unauthorized");
+                    if (domain != null) {
+                        StringTokenizer tokenizer = new StringTokenizer(domain, ",");
+                        boolean validDomain = false;
+                        while (!validDomain && tokenizer.hasMoreElements()) {
+                           validDomain = tokenizer.nextToken().equals(idToken.getPayload().get("hd"));
+                        }
+                        if (!validDomain) {
+                            return HttpResponses.errorWithoutStack(401, "Unauthorized");
+                        }
                     }
                     final Credential credential = flow.createAndStoreCredential(response, null);
 
