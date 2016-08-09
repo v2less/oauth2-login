@@ -27,7 +27,6 @@ import com.google.api.client.auth.oauth2.AuthorizationCodeFlow;
 import com.google.api.client.auth.oauth2.BearerToken;
 import com.google.api.client.auth.oauth2.ClientParametersAuthentication;
 import com.google.api.client.auth.oauth2.Credential;
-import com.google.api.client.auth.oauth2.TokenResponse;
 import com.google.api.client.auth.openidconnect.IdToken;
 import com.google.api.client.auth.openidconnect.IdTokenResponse;
 import com.google.api.client.http.GenericUrl;
@@ -39,6 +38,7 @@ import com.google.api.client.http.javanet.NetHttpTransport;
 import com.google.api.client.json.JsonFactory;
 import com.google.api.client.json.JsonObjectParser;
 import com.google.api.client.json.jackson2.JacksonFactory;
+import com.google.common.annotations.VisibleForTesting;
 import hudson.Extension;
 import hudson.Util;
 import hudson.model.Descriptor;
@@ -64,6 +64,7 @@ import org.kohsuke.stapler.StaplerRequest;
 
 import java.io.IOException;
 import java.util.Arrays;
+import java.util.StringTokenizer;
 
 /**
  * Login with Google using OpenID Connect / OAuth 2
@@ -173,7 +174,8 @@ public class GoogleOAuth2SecurityRealm extends SecurityRealm {
                     IdTokenResponse response = IdTokenResponse.execute(
                             flow.newTokenRequest(authorizationCode).setRedirectUri(buildOAuthRedirectUrl()));
                     IdToken idToken = IdToken.parse(JSON_FACTORY,response.getIdToken());
-                    if (domain != null && ! domain.equals(idToken.getPayload().get("hd"))) {
+                    Object hd = idToken.getPayload().get("hd");
+                    if (!isDomainValid(hd)) {
                         return HttpResponses.errorWithoutStack(401, "Unauthorized");
                     }
                     final Credential credential = flow.createAndStoreCredential(response, null);
@@ -206,6 +208,20 @@ public class GoogleOAuth2SecurityRealm extends SecurityRealm {
 
             }
         }.doCommenceLogin();
+    }
+
+    @VisibleForTesting
+    boolean isDomainValid(Object tokenDomain) {
+        if (domain == null) {
+            return true;
+        }
+        StringTokenizer tokenizer = new StringTokenizer(domain, ",");
+        while (tokenizer.hasMoreElements()) {
+            if (tokenizer.nextToken().equals(tokenDomain)) {
+                return true;
+            }
+        }
+        return false;
     }
 
     private String buildOAuthRedirectUrl() {
