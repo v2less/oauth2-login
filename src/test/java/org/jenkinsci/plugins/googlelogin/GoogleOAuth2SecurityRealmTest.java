@@ -16,6 +16,20 @@ public class GoogleOAuth2SecurityRealmTest {
     public JenkinsRule jenkins = new JenkinsRule();
 
     @Test
+    public void accidentallyBlank() throws IOException {
+        GoogleOAuth2SecurityRealm instance = setupInstanceWithDomains(" ");
+        assertTrue(instance.isDomainValid("acme.com"));
+        assertTrue(instance.isDomainValid("mycompany.com"));
+    }
+
+    @Test
+    public void trailingSpace() throws IOException {
+        GoogleOAuth2SecurityRealm instance = setupInstanceWithDomains("acme.com ");
+        assertTrue(instance.isDomainValid("acme.com"));
+        assertFalse(instance.isDomainValid("mycompany.com"));
+    }
+    
+    @Test
     public void validSingleDomain() throws IOException {
         GoogleOAuth2SecurityRealm instance = setupInstanceWithDomains("acme.com");
         assertTrue(instance.isDomainValid("acme.com"));

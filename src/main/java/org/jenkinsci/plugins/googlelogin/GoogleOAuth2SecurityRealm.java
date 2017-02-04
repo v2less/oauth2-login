@@ -105,7 +105,7 @@ public class GoogleOAuth2SecurityRealm extends SecurityRealm {
     public GoogleOAuth2SecurityRealm(String clientId, String clientSecret, String domain) throws IOException {
         this.clientId = clientId;
         this.clientSecret = Secret.fromString(clientSecret);
-        this.domain = Util.fixEmpty(domain);
+        this.domain = Util.fixEmptyAndTrim(domain);
     }
 
     public String getClientId() {
