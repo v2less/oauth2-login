@@ -47,6 +47,7 @@ import hudson.security.SecurityRealm;
 import hudson.util.HttpResponses;
 import hudson.util.Secret;
 import jenkins.model.Jenkins;
+import jenkins.security.SecurityListener;
 import org.acegisecurity.Authentication;
 import org.acegisecurity.AuthenticationException;
 import org.acegisecurity.AuthenticationManager;
@@ -202,6 +203,10 @@ public class GoogleOAuth2SecurityRealm extends SecurityRealm {
                     UsernamePasswordAuthenticationToken token =
                             new UsernamePasswordAuthenticationToken(info.getEmail(), "", authorities);
                     SecurityContextHolder.getContext().setAuthentication(token);
+                    // fire "LoggedIn" and not "authenticated" because
+                    // "authenticated" is "Fired when a user was successfully authenticated by password."
+                    // which is less relevant in our case
+                    SecurityListener.fireLoggedIn(token.getName());
                     // update the user profile.
                     User u = User.get(token.getName());
                     info.updateProfile(u);
