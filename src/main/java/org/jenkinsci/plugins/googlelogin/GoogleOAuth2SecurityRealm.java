@@ -203,13 +203,13 @@ public class GoogleOAuth2SecurityRealm extends SecurityRealm {
                     UsernamePasswordAuthenticationToken token =
                             new UsernamePasswordAuthenticationToken(info.getEmail(), "", authorities);
                     SecurityContextHolder.getContext().setAuthentication(token);
+                    // update the user profile.
+                    User u = User.get(token.getName());
+                    info.updateProfile(u);
                     // fire "LoggedIn" and not "authenticated" because
                     // "authenticated" is "Fired when a user was successfully authenticated by password."
                     // which is less relevant in our case
                     SecurityListener.fireLoggedIn(token.getName());
-                    // update the user profile.
-                    User u = User.get(token.getName());
-                    info.updateProfile(u);
                     return new HttpRedirect(redirectOnFinish);
 
                 } catch (IOException e) {
