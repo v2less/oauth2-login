@@ -75,8 +75,13 @@ public abstract class OAuthSession {
         Stapler.getCurrentRequest().getSession().setAttribute(SESSION_NAME, this);
 
         AuthorizationCodeRequestUrl authorizationCodeRequestUrl = flow.newAuthorizationUrl().setState(uuid).setRedirectUri(redirectUrl);
-        if (domain != null)
-            authorizationCodeRequestUrl.set("hd",domain);
+        if (domain != null) {
+            if (domain.contains(",")) {
+                authorizationCodeRequestUrl.set("hd","*");
+            } else {
+                authorizationCodeRequestUrl.set("hd",domain);
+            }
+        }
         return new HttpRedirect(authorizationCodeRequestUrl.toString());
     }
 
