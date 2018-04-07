@@ -159,9 +159,9 @@ public class GoogleOAuth2SecurityRealm extends SecurityRealm {
      */
     public HttpResponse doCommenceLogin(@QueryParameter String from,  @Header("Referer") final String referer) throws IOException {
         final String redirectOnFinish;
-        if (from != null) {
+        if (from != null && ! Util.isAbsoluteUri(from) && ! from.startsWith("//")) {
             redirectOnFinish = from;
-        } else if (referer != null) {
+        } else if (referer != null && ! Util.isAbsoluteUri(referer) && ! referer.startsWith("//")) {
             redirectOnFinish = referer;
         } else {
             redirectOnFinish = Jenkins.getInstance().getRootUrl();
