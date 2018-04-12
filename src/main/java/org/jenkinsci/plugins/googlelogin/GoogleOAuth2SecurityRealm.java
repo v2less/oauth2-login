@@ -60,6 +60,7 @@ import org.kohsuke.stapler.Header;
 import org.kohsuke.stapler.HttpRedirect;
 import org.kohsuke.stapler.HttpResponse;
 import org.kohsuke.stapler.QueryParameter;
+import org.kohsuke.stapler.Stapler;
 import org.kohsuke.stapler.StaplerRequest;
 
 import java.io.IOException;
@@ -158,9 +159,9 @@ public class GoogleOAuth2SecurityRealm extends SecurityRealm {
      */
     public HttpResponse doCommenceLogin(@QueryParameter String from,  @Header("Referer") final String referer) throws IOException {
         final String redirectOnFinish;
-        if (from != null) {
+        if (from != null && ! Util.isAbsoluteUri(from) && ! from.startsWith("//")) {
             redirectOnFinish = from;
-        } else if (referer != null) {
+        } else if (referer != null && ! Util.isAbsoluteUri(referer) && ! referer.startsWith("//")) {
             redirectOnFinish = referer;
         } else {
             redirectOnFinish = Jenkins.getInstance().getRootUrl();
@@ -201,6 +202,11 @@ public class GoogleOAuth2SecurityRealm extends SecurityRealm {
                     // logs this user in.
                     UsernamePasswordAuthenticationToken token =
                             new UsernamePasswordAuthenticationToken(info.getEmail(), "", authorities);
+
+                    // prevent session fixation attack
+                    Stapler.getCurrentRequest().getSession().invalidate();
+                    Stapler.getCurrentRequest().getSession();
+
                     SecurityContextHolder.getContext().setAuthentication(token);
                     // update the user profile.
                     User u = User.get(token.getName());
