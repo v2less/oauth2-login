@@ -84,6 +84,10 @@ public abstract class OAuthSession {
      * When the identity provider is done with its thing, the user comes back here.
      */
     public HttpResponse doFinishLogin(StaplerRequest request) throws IOException {
+        if (request.getParameter("state") == null) {
+            // user was not sent here by Google
+            return HttpResponses.redirectToContextRoot();
+        }
         StringBuffer buf = request.getRequestURL();
         if (request.getQueryString() != null) {
             buf.append('?').append(request.getQueryString());

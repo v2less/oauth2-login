@@ -42,6 +42,7 @@ import com.google.common.annotations.VisibleForTesting;
 import hudson.Extension;
 import hudson.Util;
 import hudson.model.Descriptor;
+import hudson.model.Failure;
 import hudson.model.User;
 import hudson.security.SecurityRealm;
 import hudson.util.HttpResponses;
@@ -249,7 +250,11 @@ public class GoogleOAuth2SecurityRealm extends SecurityRealm {
      * This is where the user comes back to at the end of the OpenID redirect ping-pong.
      */
     public HttpResponse doFinishLogin(StaplerRequest request) throws IOException {
-        return OAuthSession.getCurrent().doFinishLogin(request);
+        if (OAuthSession.getCurrent() != null) {
+            return OAuthSession.getCurrent().doFinishLogin(request);
+        } else {
+            return new Failure("Your Jenkins session has expired. Please login again.");
+        }
     }
 
     @Extension
