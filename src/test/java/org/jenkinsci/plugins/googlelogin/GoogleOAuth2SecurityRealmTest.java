@@ -28,7 +28,7 @@ public class GoogleOAuth2SecurityRealmTest {
         assertTrue(instance.isDomainValid("acme.com"));
         assertFalse(instance.isDomainValid("mycompany.com"));
     }
-    
+
     @Test
     public void validSingleDomain() throws IOException {
         GoogleOAuth2SecurityRealm instance = setupInstanceWithDomains("acme.com");
@@ -38,14 +38,21 @@ public class GoogleOAuth2SecurityRealmTest {
 
     @Test
     public void validTwoDomains() throws IOException {
-        GoogleOAuth2SecurityRealm instance = setupInstanceWithDomains("acme.com","mycompany.com");
+        GoogleOAuth2SecurityRealm instance = setupInstanceWithDomains("acme.com,mycompany.com");
         assertTrue(instance.isDomainValid("acme.com"));
         assertTrue(instance.isDomainValid("mycompany.com"));
     }
 
-    private GoogleOAuth2SecurityRealm setupInstanceWithDomains(String... domains) throws IOException {
+    @Test
+    public void validTwoDomainsWithLeadingSpaces() throws IOException {
+        GoogleOAuth2SecurityRealm instance = setupInstanceWithDomains("acme.com, mycompany.com");
+        assertTrue(instance.isDomainValid("acme.com"));
+        assertTrue(instance.isDomainValid("mycompany.com"));
+    }
+
+    private GoogleOAuth2SecurityRealm setupInstanceWithDomains(String domains) throws IOException {
         String clientId = "clientId";
         String clientSecret = "clientSecret";
-        return new GoogleOAuth2SecurityRealm(clientId, clientSecret, StringUtils.join(domains,','));
+        return new GoogleOAuth2SecurityRealm(clientId, clientSecret, domains);
     }
 }

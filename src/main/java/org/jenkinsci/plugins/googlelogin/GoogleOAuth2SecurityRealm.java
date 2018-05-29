@@ -229,7 +229,8 @@ public class GoogleOAuth2SecurityRealm extends SecurityRealm {
         }
         StringTokenizer tokenizer = new StringTokenizer(domain, ",");
         while (tokenizer.hasMoreElements()) {
-            if (tokenizer.nextToken().equals(tokenDomain)) {
+            String domainToTest = tokenizer.nextToken().trim();
+            if (domainToTest.equals(tokenDomain)) {
                 return true;
             }
         }
