@@ -13,6 +13,10 @@ See the full list of issues at [JIRA](https://issues.jenkins-ci.org/issues/?filt
 * Task: Add Jenkinsfile for ci.jenkins.io. ([#12](https://github.com/jenkinsci/google-login-plugin/pull/12))
 * Fix: Remove leading and trailing spaces from domain ([#9](https://github.com/jenkinsci/google-login-plugin/pull/9))
 * Fix: [JENKINS-36706](https://issues.jenkins-ci.org/browse/JENKINS-36706) - Improve session timeout handling ([#8](https://github.com/jenkinsci/google-login-plugin/pull/8))
+* Task: Update parent POM. Raises Jenkins Core requirement to 2.60.1
+* Task: fix findbugs issues
+* Task: Update inline help based on latest Google Developers Console UI
+* Fix: Avoid 'Committed' stacktraced in logs
 
 1.3.1
 -----
