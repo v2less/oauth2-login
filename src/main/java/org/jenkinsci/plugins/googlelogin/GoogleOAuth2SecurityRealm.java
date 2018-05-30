@@ -57,6 +57,8 @@ import org.acegisecurity.GrantedAuthority;
 import org.acegisecurity.context.SecurityContextHolder;
 import org.acegisecurity.providers.UsernamePasswordAuthenticationToken;
 import org.acegisecurity.providers.anonymous.AnonymousAuthenticationToken;
+import org.kohsuke.accmod.Restricted;
+import org.kohsuke.accmod.restrictions.DoNotUse;
 import org.kohsuke.stapler.DataBoundConstructor;
 import org.kohsuke.stapler.Header;
 import org.kohsuke.stapler.HttpRedirect;
@@ -113,10 +115,12 @@ public class GoogleOAuth2SecurityRealm extends SecurityRealm {
         this.domain = Util.fixEmptyAndTrim(domain);
     }
 
+    @SuppressWarnings("unused") // jelly
     public String getClientId() {
         return clientId;
     }
 
+    @SuppressWarnings("unused") // jelly
     public Secret getClientSecret() {
         return clientSecret;
     }
@@ -161,6 +165,8 @@ public class GoogleOAuth2SecurityRealm extends SecurityRealm {
     /**
      * The login process starts from here.
      */
+    @SuppressWarnings("unused") // stapler
+    @Restricted(DoNotUse.class) // stapler only
     public HttpResponse doCommenceLogin(StaplerRequest request, @QueryParameter String from,  @Header("Referer") final String referer) throws IOException {
         final String redirectOnFinish;
         if (from != null && ! Util.isSafeToRedirectTo(from)) {
@@ -259,6 +265,8 @@ public class GoogleOAuth2SecurityRealm extends SecurityRealm {
     /**
      * This is where the user comes back to at the end of the OpenID redirect ping-pong.
      */
+    @SuppressWarnings("unused") // stapler
+    @Restricted(DoNotUse.class) // stapler only
     public HttpResponse doFinishLogin(StaplerRequest request) throws IOException {
         OAuthSession oAuthSession = (OAuthSession) request.getSession().getAttribute(SESSION_NAME);
         if (oAuthSession != null) {
