@@ -1,8 +1,10 @@
 <?jelly escape-by-default='true'?>
 <j:jelly xmlns:j="jelly:core" xmlns:st="jelly:stapler" xmlns:d="jelly:define" xmlns:l="/lib/layout" xmlns:t="/lib/hudson" xmlns:f="/lib/form" xmlns:i="jelly:fmt" xmlns:p="/lib/hudson/project">
-    <l:layout norefresh="true">
-        <j:choose>
-            <j:when test="${h.isAnonymous()}">
+    <j:new var="h" className="hudson.Functions" />
+${h.initPageVariables(context)}
+    <j:choose>
+        <j:when test="${h.isAnonymous()}">
+            <l:layout norefresh="true">
                 <l:hasPermission permission="${app.READ}">
                     <st:include it="${app}" page="sidepanel.jelly" />
                 </l:hasPermission>
@@ -13,10 +15,10 @@
                         </div>
                     </div>
                 </l:main-panel>
-            </j:when>
-            <j:otherwise>
-                <st:redirect url="${rootURL}" />
-            </j:otherwise>
-        </j:choose>
-    </l:layout>
+            </l:layout>
+        </j:when>
+        <j:otherwise>
+            <st:redirect url="${rootURL}" />
+        </j:otherwise>
+    </j:choose>
 </j:jelly>
