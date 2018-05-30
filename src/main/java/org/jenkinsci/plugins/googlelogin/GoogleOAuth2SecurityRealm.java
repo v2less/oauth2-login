@@ -90,6 +90,8 @@ public class GoogleOAuth2SecurityRealm extends SecurityRealm {
 
     private static final HttpTransport HTTP_TRANSPORT = new NetHttpTransport();
 
+    private static final String SESSION_NAME = GoogleOAuth2SecurityRealm.class.getName() + ".OAuthSession";
+
     /**
      * The clientID from the Google Developer console.
      */
@@ -124,7 +126,7 @@ public class GoogleOAuth2SecurityRealm extends SecurityRealm {
     }
 
     /**
-     * Login begins with our {@link #doCommenceLogin(String,String)} method.
+     * Login begins with our {@link #doCommenceLogin(StaplerRequest, String,String)} method.
      */
     @Override
     public String getLoginUrl() {
@@ -159,7 +161,7 @@ public class GoogleOAuth2SecurityRealm extends SecurityRealm {
     /**
      * The login process starts from here.
      */
-    public HttpResponse doCommenceLogin(@QueryParameter String from,  @Header("Referer") final String referer) throws IOException {
+    public HttpResponse doCommenceLogin(StaplerRequest request, @QueryParameter String from,  @Header("Referer") final String referer) throws IOException {
         final String redirectOnFinish;
         if (from != null && ! Util.isSafeToRedirectTo(from)) {
             redirectOnFinish = from;
@@ -175,13 +177,13 @@ public class GoogleOAuth2SecurityRealm extends SecurityRealm {
                 .setScopes(Arrays.asList(SCOPE))
                 .build();
 
-        return new OAuthSession(flow,from, buildOAuthRedirectUrl(), domain) {
+        OAuthSession oAuthSession = new OAuthSession(from, buildOAuthRedirectUrl(), domain) {
             @Override
             public HttpResponse onSuccess(String authorizationCode) {
                 try {
                     IdTokenResponse response = IdTokenResponse.execute(
                             flow.newTokenRequest(authorizationCode).setRedirectUri(buildOAuthRedirectUrl()));
-                    IdToken idToken = IdToken.parse(JSON_FACTORY,response.getIdToken());
+                    IdToken idToken = IdToken.parse(JSON_FACTORY, response.getIdToken());
                     Object hd = idToken.getPayload().get("hd");
                     if (!isDomainValid(hd)) {
                         return HttpResponses.errorWithoutStack(401, "Unauthorized");
@@ -220,11 +222,13 @@ public class GoogleOAuth2SecurityRealm extends SecurityRealm {
                     return new HttpRedirect(redirectOnFinish);
 
                 } catch (IOException e) {
-                    return HttpResponses.error(500,e);
+                    return HttpResponses.error(500, e);
                 }
 
             }
-        }.doCommenceLogin();
+        };
+        request.getSession().setAttribute(SESSION_NAME, oAuthSession);
+        return oAuthSession.doCommenceLogin(flow);
     }
 
     @VisibleForTesting
@@ -256,8 +260,9 @@ public class GoogleOAuth2SecurityRealm extends SecurityRealm {
      * This is where the user comes back to at the end of the OpenID redirect ping-pong.
      */
     public HttpResponse doFinishLogin(StaplerRequest request) throws IOException {
-        if (OAuthSession.getCurrent() != null) {
-            return OAuthSession.getCurrent().doFinishLogin(request);
+        OAuthSession oAuthSession = (OAuthSession) request.getSession().getAttribute(SESSION_NAME);
+        if (oAuthSession != null) {
+            return oAuthSession.doFinishLogin(request);
         } else {
             return new Failure("Your Jenkins session has expired. Please login again.");
         }

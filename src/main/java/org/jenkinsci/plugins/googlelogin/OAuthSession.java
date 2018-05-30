@@ -35,6 +35,7 @@ import org.kohsuke.stapler.Stapler;
 import org.kohsuke.stapler.StaplerRequest;
 
 import java.io.IOException;
+import java.io.Serializable;
 import java.nio.charset.StandardCharsets;
 import java.util.UUID;
 
@@ -43,9 +44,10 @@ import java.util.UUID;
  *
  * Verifies the validity of the response by comparing the state.
  */
-public abstract class OAuthSession {
+public abstract class OAuthSession implements Serializable {
 
-    private final AuthorizationCodeFlow flow;
+    private static final long serialVersionUID = 1438835558745081350L;
+
     private final String uuid = Base64.encode(UUID.randomUUID().toString().getBytes(StandardCharsets.UTF_8)).substring(0,20);
     /**
      * The url the user was trying to navigate to.
@@ -59,8 +61,7 @@ public abstract class OAuthSession {
 
     private final String domain;
 
-    public OAuthSession(AuthorizationCodeFlow flow, String from, String redirectUrl, String domain) {
-        this.flow = flow;
+    public OAuthSession(String from, String redirectUrl, String domain) {
         this.from = from;
         this.redirectUrl = redirectUrl;
         this.domain = domain;
@@ -69,11 +70,7 @@ public abstract class OAuthSession {
     /**
      * Starts the login session.
      */
-    public HttpResponse doCommenceLogin() throws IOException {
-
-        // remember this in the session
-        Stapler.getCurrentRequest().getSession().setAttribute(SESSION_NAME, this);
-
+    public HttpResponse doCommenceLogin(AuthorizationCodeFlow flow) throws IOException {
         AuthorizationCodeRequestUrl authorizationCodeRequestUrl = flow.newAuthorizationUrl().setState(uuid).setRedirectUri(redirectUrl);
         if (domain != null) {
             if (domain.contains(",")) {
@@ -121,15 +118,4 @@ public abstract class OAuthSession {
     }
 
     protected abstract HttpResponse onSuccess(String authorizationCode) throws IOException;
-
-
-
-    /**
-     * Gets the {@link OAuthSession} associated with HTTP session in the current extend.
-     */
-    public static OAuthSession getCurrent() {
-        return (OAuthSession) Stapler.getCurrentRequest().getSession().getAttribute(SESSION_NAME);
-    }
-
-    private static final String SESSION_NAME = OAuthSession.class.getName();
 }

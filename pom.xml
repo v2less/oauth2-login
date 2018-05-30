@@ -19,7 +19,6 @@
 
   <properties>
     <java.level>7</java.level>
-    <findbugs.failOnError>false</findbugs.failOnError>
   </properties>
 
   <name>Google Login Plugin</name>
