@@ -1,0 +1,18 @@
+<?jelly escape-by-default='true'?>
+<j:jelly xmlns:j="jelly:core" xmlns:st="jelly:stapler" xmlns:d="jelly:define" xmlns:l="/lib/layout" xmlns:t="/lib/hudson" xmlns:f="/lib/form" xmlns:i="jelly:fmt" xmlns:p="/lib/hudson/project">
+<div>
+    Authenticate all users with Google OAuth 2.0. To use this plugin, you must obtain OAuth 2.0 credentials
+    from the <a href="https://console.developers.google.com/">Google Developers Console</a>.
+</div>
+ <div>
+     Steps:
+     <ol>
+         <li>Login to the <a href="https://console.developers.google.com/">Google Developers Console</a></li>
+         <li>Create a new project</li>
+         <li>Under APIs &amp; Services -> Credentials, Create credentials, OAuth client ID</li>
+         <li>The application type should be "Web Application"</li>
+         <li>The authorized redirect URLs should contain <b>${app.rootUrl}securityRealm/finishLogin</b></li>
+         <li>Enter the created Client ID and secret into the fields below.</li>
+     </ol>
+ </div>
+</j:jelly>
