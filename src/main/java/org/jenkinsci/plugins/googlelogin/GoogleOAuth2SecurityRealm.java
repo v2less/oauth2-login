@@ -253,7 +253,7 @@ public class GoogleOAuth2SecurityRealm extends SecurityRealm {
     }
 
     private String buildOAuthRedirectUrl() {
-        String rootUrl = Jenkins.getInstance().getRootUrl();
+        String rootUrl = Jenkins.getInstance().getRootUrlFromRequest();
         if (rootUrl == null) {
             throw new NullPointerException("Jenkins root url should not be null");
         } else {
