@@ -174,7 +174,7 @@ public class GoogleOAuth2SecurityRealm extends SecurityRealm {
         } else if (referer != null && ! Util.isSafeToRedirectTo(referer)) {
             redirectOnFinish = referer;
         } else {
-            redirectOnFinish = Jenkins.getInstance().getRootUrl();
+            redirectOnFinish = Jenkins.getInstance().getRootUrlFromRequest();
         }
 
         final AuthorizationCodeFlow flow = new AuthorizationCodeFlow.Builder(
