@@ -6,6 +6,10 @@ Known issues
 
 See the full list of issues at [JIRA](https://issues.jenkins-ci.org/issues/?filter=18451)
 
+1.5 and newer
+---
+No longer tracked in this file. See [GitHub releases](https://github.com/jenkinsci/google-login-plugin/releases) instead.
+
 1.4
 -----
 * Fix: [JENKINS-47274](https://issues.jenkins-ci.org/browse/JENKINS-47274) - Fire event after the user has been loaded from the Jenkins user management service ([#10](https://github.com/jenkinsci/google-login-plugin/pull/10))
