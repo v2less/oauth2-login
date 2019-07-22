@@ -60,6 +60,7 @@ import org.acegisecurity.providers.anonymous.AnonymousAuthenticationToken;
 import org.kohsuke.accmod.Restricted;
 import org.kohsuke.accmod.restrictions.DoNotUse;
 import org.kohsuke.stapler.DataBoundConstructor;
+import org.kohsuke.stapler.DataBoundSetter;
 import org.kohsuke.stapler.Header;
 import org.kohsuke.stapler.HttpRedirect;
 import org.kohsuke.stapler.HttpResponse;
@@ -108,11 +109,28 @@ public class GoogleOAuth2SecurityRealm extends SecurityRealm {
      */
     private final String domain;
 
+    /**
+     * If true, the redirection will happen based on the root URL determined from request.
+     * If false, the redirection will happen based on the root URL configured in Jenkins.
+     */
+    private boolean rootURLFromRequest;
+
     @DataBoundConstructor
     public GoogleOAuth2SecurityRealm(String clientId, String clientSecret, String domain) throws IOException {
         this.clientId = clientId;
         this.clientSecret = Secret.fromString(clientSecret);
         this.domain = Util.fixEmptyAndTrim(domain);
+    }
+
+    @SuppressWarnings("unused") // jelly
+    public boolean isRootURLFromRequest() {
+        return rootURLFromRequest;
+    }
+
+    @DataBoundSetter
+    @SuppressWarnings("unused") // jelly
+    public void setRootURLFromRequest(boolean rootURLFromRequest) {
+        this.rootURLFromRequest = rootURLFromRequest;
     }
 
     @SuppressWarnings("unused") // jelly
@@ -174,7 +192,7 @@ public class GoogleOAuth2SecurityRealm extends SecurityRealm {
         } else if (referer != null && ! Util.isSafeToRedirectTo(referer)) {
             redirectOnFinish = referer;
         } else {
-            redirectOnFinish = Jenkins.getInstance().getRootUrlFromRequest();
+            redirectOnFinish = getRootURL();
         }
 
         final AuthorizationCodeFlow flow = new AuthorizationCodeFlow.Builder(
@@ -253,11 +271,19 @@ public class GoogleOAuth2SecurityRealm extends SecurityRealm {
     }
 
     private String buildOAuthRedirectUrl() {
-        String rootUrl = Jenkins.getInstance().getRootUrlFromRequest();
+        String rootUrl = getRootURL();
         if (rootUrl == null) {
             throw new NullPointerException("Jenkins root url should not be null");
         } else {
             return rootUrl + "securityRealm/finishLogin";
+        }
+    }
+
+    private String getRootURL() {
+        if (rootURLFromRequest) {
+            return Jenkins.getInstance().getRootUrlFromRequest();
+        } else {
+            return Jenkins.getInstance().getRootUrl();
         }
     }
 
