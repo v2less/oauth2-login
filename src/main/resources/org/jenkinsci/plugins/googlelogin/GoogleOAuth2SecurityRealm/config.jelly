@@ -9,4 +9,7 @@
   <f:entry title="${%Google Apps Domain}" field="domain">
     <f:textbox/>
   </f:entry>
+  <f:entry title="${%Use Root URL from request}" field="rootURLFromRequest">
+    <f:checkbox/>
+  </f:entry>
 </j:jelly>
