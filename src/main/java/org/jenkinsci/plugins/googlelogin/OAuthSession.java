@@ -27,6 +27,7 @@ import com.google.api.client.auth.oauth2.AuthorizationCodeFlow;
 import com.google.api.client.auth.oauth2.AuthorizationCodeRequestUrl;
 import com.google.api.client.auth.oauth2.AuthorizationCodeResponseUrl;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
+import hudson.model.Failure;
 import hudson.remoting.Base64;
 import hudson.util.HttpResponses;
 import org.kohsuke.stapler.HttpRedirect;
@@ -36,6 +37,7 @@ import org.kohsuke.stapler.StaplerRequest;
 
 import java.io.IOException;
 import java.io.Serializable;
+import java.lang.IllegalArgumentException;
 import java.nio.charset.StandardCharsets;
 import java.util.UUID;
 
@@ -94,17 +96,21 @@ public abstract class OAuthSession implements Serializable {
         if (request.getQueryString() != null) {
             buf.append('?').append(request.getQueryString());
         }
-        AuthorizationCodeResponseUrl responseUrl = new AuthorizationCodeResponseUrl(buf.toString());
-        if (! uuid.equals(responseUrl.getState())) {
-            return HttpResponses.error(401, "State is invalid");
-        }
-        String code = responseUrl.getCode();
-        if (responseUrl.getError() != null) {
-            return HttpResponses.error(401, "Error from provider: " + code);
-        } else if (code == null) {
-            return HttpResponses.error(404, "Missing authorization code");
-        } else {
-            return onSuccess(code);
+        try {
+            AuthorizationCodeResponseUrl responseUrl = new AuthorizationCodeResponseUrl(buf.toString());
+            if (! uuid.equals(responseUrl.getState())) {
+                return HttpResponses.error(401, "State is invalid");
+            }
+            String code = responseUrl.getCode();
+            if (responseUrl.getError() != null) {
+                return HttpResponses.error(401, "Error from provider: " + code);
+            } else if (code == null) {
+                return HttpResponses.error(404, "Missing authorization code");
+            } else {
+                return onSuccess(code);
+            }
+        } catch (IllegalArgumentException e) {
+            throw new Failure("Failed to login. Cannot parse URL.");
         }
     }
 
