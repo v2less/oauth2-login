@@ -186,14 +186,7 @@ public class GoogleOAuth2SecurityRealm extends SecurityRealm {
     @SuppressWarnings("unused") // stapler
     @Restricted(DoNotUse.class) // stapler only
     public HttpResponse doCommenceLogin(StaplerRequest request, @QueryParameter String from,  @Header("Referer") final String referer) throws IOException {
-        final String redirectOnFinish;
-        if (from != null && ! Util.isSafeToRedirectTo(from)) {
-            redirectOnFinish = from;
-        } else if (referer != null && ! Util.isSafeToRedirectTo(referer)) {
-            redirectOnFinish = referer;
-        } else {
-            redirectOnFinish = getRootURL();
-        }
+        final String redirectOnFinish = getRedirectOnFinish(from, referer);
 
         final AuthorizationCodeFlow flow = new AuthorizationCodeFlow.Builder(
                 BearerToken.queryParameterAccessMethod(), HTTP_TRANSPORT, JSON_FACTORY, TOKEN_SERVER_URL,
@@ -253,6 +246,18 @@ public class GoogleOAuth2SecurityRealm extends SecurityRealm {
         };
         request.getSession().setAttribute(SESSION_NAME, oAuthSession);
         return oAuthSession.doCommenceLogin(flow);
+    }
+
+    String getRedirectOnFinish(String from, String referer) {
+        final String redirectOnFinish;
+        if (from != null && Util.isSafeToRedirectTo(from)) {
+            redirectOnFinish = from;
+        } else if (referer != null && Util.isSafeToRedirectTo(referer)) {
+            redirectOnFinish = referer;
+        } else {
+            redirectOnFinish = getRootURL();
+        }
+        return redirectOnFinish;
     }
 
     @VisibleForTesting
