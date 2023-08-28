@@ -30,6 +30,7 @@ import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import hudson.model.Failure;
 import hudson.remoting.Base64;
 import hudson.util.HttpResponses;
+import java.security.MessageDigest;
 import org.kohsuke.stapler.HttpRedirect;
 import org.kohsuke.stapler.HttpResponse;
 import org.kohsuke.stapler.Stapler;
@@ -98,7 +99,8 @@ public abstract class OAuthSession implements Serializable {
         }
         try {
             AuthorizationCodeResponseUrl responseUrl = new AuthorizationCodeResponseUrl(buf.toString());
-            if (! uuid.equals(responseUrl.getState())) {
+            String state = responseUrl.getState();
+            if (state == null || !MessageDigest.isEqual(uuid.getBytes(StandardCharsets.UTF_8), state.getBytes(StandardCharsets.UTF_8))) {
                 return HttpResponses.error(401, "State is invalid");
             }
             String code = responseUrl.getCode();
