@@ -2,4 +2,5 @@ work/
 target/
 
 .idea/
+.vscode/
 *.iml

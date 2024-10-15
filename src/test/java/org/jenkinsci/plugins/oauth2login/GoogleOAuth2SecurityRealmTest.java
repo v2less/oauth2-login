@@ -1,4 +1,4 @@
-package org.jenkinsci.plugins.googlelogin;
+package org.jenkinsci.plugins.oauth2login;
 
 import org.junit.Rule;
 import org.junit.Test;
@@ -53,7 +53,11 @@ public class GoogleOAuth2SecurityRealmTest {
     private GoogleOAuth2SecurityRealm setupInstanceWithDomains(String domains) throws IOException {
         String clientId = "clientId";
         String clientSecret = "clientSecret";
-        return new GoogleOAuth2SecurityRealm(clientId, clientSecret, domains);
+        String authorizationEndpointUrl = "https://example.com/auth";
+        String tokenEndpointUrl = "https://example.com/token";
+        String userInfoEndpointUrl = "https://example.com/userinfo";
+        return new GoogleOAuth2SecurityRealm(clientId, clientSecret, domains, 
+                                             authorizationEndpointUrl, tokenEndpointUrl, userInfoEndpointUrl);
     }
 
     @Test

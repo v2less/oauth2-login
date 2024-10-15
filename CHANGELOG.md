@@ -4,6 +4,8 @@ CHANGELOG
 Known issues
 ------------
 
+Based on google-login-plugin.
+
 See the full list of issues at [JIRA](https://issues.jenkins-ci.org/issues/?filter=18451)
 
 1.5 and newer

@@ -1,15 +1,28 @@
 <?jelly escape-by-default='true'?>
 <j:jelly xmlns:j="jelly:core" xmlns:st="jelly:stapler" xmlns:d="jelly:define" xmlns:l="/lib/layout" xmlns:t="/lib/hudson" xmlns:f="/lib/form" xmlns:i="jelly:fmt" xmlns:p="/lib/hudson/project">
+  <f:entry title="${%Authorization Endpoint URL}" field="authorizationEndpointUrl">
+    <f:textbox/>
+  </f:entry>
+  <f:entry title="${%Token Endpoint URL}" field="tokenEndpointUrl">
+    <f:textbox/>
+  </f:entry>
+  <f:entry title="${%User Info Endpoint URL}" field="userInfoEndpointUrl">
+    <f:textbox/>
+  </f:entry>
   <f:entry title="${%Client Id}" field="clientId">
     <f:textbox autocomplete="off"/>
   </f:entry>
   <f:entry title="${%Client Secret}" field="clientSecret">
     <f:password autocomplete="off"/>
   </f:entry>
-  <f:entry title="${%Google Apps Domain}" field="domain">
+  <f:entry title="${%Yach Apps Domain}" field="domain">
     <f:textbox/>
   </f:entry>
   <f:entry title="${%Use Root URL from request}" field="rootURLFromRequest">
     <f:checkbox/>
   </f:entry>
+  <f:entry title="${%Enable Debug Mode}" field="debug">
+    <f:checkbox default="${it.debug}"/>
+  </f:entry>
+  
 </j:jelly>
