@@ -21,7 +21,7 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-package org.jenkinsci.plugins.googlelogin;
+package org.jenkinsci.plugins.oauth2login;
 
 import com.google.api.client.auth.oauth2.AuthorizationCodeFlow;
 import com.google.api.client.auth.oauth2.AuthorizationCodeRequestUrl;
@@ -41,6 +41,8 @@ import java.io.Serializable;
 import java.lang.IllegalArgumentException;
 import java.nio.charset.StandardCharsets;
 import java.util.UUID;
+import java.util.logging.Logger;
+import java.util.logging.Level;
 
 /**
  * The state of the OAuth request.
@@ -50,6 +52,8 @@ import java.util.UUID;
 public abstract class OAuthSession implements Serializable {
 
     private static final long serialVersionUID = 1438835558745081350L;
+    private static final Logger LOGGER = Logger.getLogger(OAuthSession.class.getName());
+    private boolean debug;
 
     private final String uuid = Base64.encode(UUID.randomUUID().toString().getBytes(StandardCharsets.UTF_8)).substring(0,20);
     /**
@@ -64,10 +68,11 @@ public abstract class OAuthSession implements Serializable {
 
     private final String domain;
 
-    public OAuthSession(String from, String redirectUrl, String domain) {
+    public OAuthSession(String from, String redirectUrl, String domain, boolean debug) {
         this.from = from;
         this.redirectUrl = redirectUrl;
         this.domain = domain;
+        this.debug = debug;
     }
 
     /**
@@ -91,6 +96,9 @@ public abstract class OAuthSession implements Serializable {
     public HttpResponse doFinishLogin(StaplerRequest request) throws IOException {
         if (request.getParameter("state") == null) {
             // user was not sent here by Google
+            if (debug) {
+                LOGGER.info("Debug: State parameter is missing");
+            }
             return HttpResponses.redirectToContextRoot();
         }
         StringBuffer buf = request.getRequestURL();
@@ -100,18 +108,38 @@ public abstract class OAuthSession implements Serializable {
         try {
             AuthorizationCodeResponseUrl responseUrl = new AuthorizationCodeResponseUrl(buf.toString());
             String state = responseUrl.getState();
+            if (debug) {
+                LOGGER.info("Debug: Received state: " + state);
+                LOGGER.info("Debug: Expected state: " + uuid);
+            }
             if (state == null || !MessageDigest.isEqual(uuid.getBytes(StandardCharsets.UTF_8), state.getBytes(StandardCharsets.UTF_8))) {
                 return HttpResponses.error(401, "State is invalid");
             }
             String code = responseUrl.getCode();
+            if (debug) {
+                LOGGER.info("Debug: Received code: " + code);
+            }
+            // Check and fix potentially truncated authorization code
+            if (code != null && !code.endsWith("==")) {
+                code = code + "==";
+                if (debug) {
+                    LOGGER.info("Debug: Fixed code: " + code);
+                }
+            }
             if (responseUrl.getError() != null) {
-                return HttpResponses.error(401, "Error from provider: " + code);
+                if (debug) {
+                    LOGGER.info("Debug: Error from provider: " + responseUrl.getError());
+                }
+                return HttpResponses.error(401, "Error from provider: " + responseUrl.getError());
             } else if (code == null) {
                 return HttpResponses.error(404, "Missing authorization code");
             } else {
                 return onSuccess(code);
             }
         } catch (IllegalArgumentException e) {
+            if (debug) {
+                LOGGER.log(Level.SEVERE, "Debug: Failed to parse URL: " + e.getMessage(), e);
+            }
             throw new Failure("Failed to login. Cannot parse URL.");
         }
     }

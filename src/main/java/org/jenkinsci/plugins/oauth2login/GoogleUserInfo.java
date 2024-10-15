@@ -21,7 +21,7 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-package org.jenkinsci.plugins.googlelogin;
+package org.jenkinsci.plugins.oauth2login;
 
 import java.io.IOException;
 
@@ -34,55 +34,64 @@ import hudson.model.UserPropertyDescriptor;
 import hudson.tasks.Mailer;
 
 /**
- * Represents an identity information from the oauth provider.
+ * 表示来自oauth提供者的身份信息。
  *
- * This is from https://www.googleapis.com/userinfo/v2/me
+ * 这是从类似 https://example.com/userinfo 获取的
  */
 public class GoogleUserInfo extends UserProperty {
 
-    @Key
-    public String family_name;
+    @Key("code")
+    public int code;
 
-    @Key
-    public String name;
+    @Key("msg")
+    public String msg;
 
-    @Key
-    public String picture;
+    @Key("name")
+    private String name;
 
-    @Key
-    public String locale;
+    @Key("email")
+    private String email;
 
-    @Key
-    public String gender;
+    @Key("data")
+    private Data data;
 
-    @Key
-    public String email;
-
-    @Key
-    public String link;
-
-    @Key
-    public String given_name;
-
-    @Key
-    public String id;
-
-    @Key
-    public boolean verified_email;
+    public static class Data {
+        @Key("name")
+        public String name;
+    
+        @Key("email")
+        public String email;
+    }
 
     public String getEmail() {
-        return email;
+        if (email != null) {
+            return email;
+        }
+        return data != null ? data.email : null;
     }
 
     public String getName() {
-        return name;
+        if (name != null) {
+            return name;
+        }
+        return data != null ? data.name : null;
+    }
+
+    public boolean hasError() {
+        return code != 0 && code != 200;
+    }
+    
+    public String getErrorMessage() {
+        return msg;
     }
 
     /**
-     * Updates the user based on the information in this identity.
+     * 根据此身份信息更新用户。
      */
     public void updateProfile(hudson.model.User u) throws IOException {
-        // update the user profile by the externally given information
+        String email = getEmail();
+        String name = getName();
+        
         if (email != null)
             u.addProperty(new Mailer.UserProperty(email));
 

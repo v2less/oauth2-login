@@ -1,0 +1,22 @@
+<?jelly escape-by-default='true'?>
+<j:jelly xmlns:j="jelly:core" xmlns:st="jelly:stapler" xmlns:d="jelly:define" xmlns:l="/lib/layout" xmlns:t="/lib/hudson" xmlns:f="/lib/form" xmlns:i="jelly:fmt" xmlns:p="/lib/hudson/project">
+<div>
+    Authenticate all users with Yach OAuth 2.0. To use this plugin, you must obtain OAuth 2.0 credentials
+    from your OAuth 2.0 service platform.
+</div>
+ <div>
+     Steps:
+     <ol>
+         <li>Login to your OAuth 2.0 service platform</li>
+         <li>Create a new app</li>         
+         <li>The authorized redirect URLs should contain <b>${app.rootUrl}securityRealm/finishLogin</b></li>
+         <li>Enter the created Client ID and secret into the fields below.</li>
+     </ol>
+ </div>
+ <div>
+     Author:
+     <ul>
+         <li>Email: waytoarcher@gmail.com</li>
+     </ul>
+ </div>
+</j:jelly>
